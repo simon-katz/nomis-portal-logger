@@ -4,8 +4,9 @@
 
 ;;;; Copied from
 ;;;; https://github.com/djblue/portal-talk/blob/main/src/url_shortener/console.cljc.
+;;;; And then modified.
 
-(defonce enabled (atom false))
+(defonce enabled (atom true))
 
 (defn toggle [] (swap! enabled not))
 
