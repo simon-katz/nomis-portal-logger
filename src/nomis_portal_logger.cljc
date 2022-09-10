@@ -1,4 +1,5 @@
 (ns nomis-portal-logger
+  (:refer-clojure :exclude [tap>])
   #?(:cljs (:require-macros portal.console))
   (:require [clojure.string :as str]))
 
@@ -22,30 +23,25 @@
 (defn runtime []
   #?(:bb :bb :clj :clj :cljs :cljs))
 
-(defn log*
-  ([level form expr]
-   (log* level form expr nil))
-  ([level form expr tag]
-   (let [{:keys [line column]} (meta form)]
-     `(if-not @enabled
-        ~expr
-        (let [[flow# result#] (run (fn [] ~expr))]
-          (tap>
-           {:form     (quote ~expr)
-            :level    (if (= flow# :throw) :fatal ~level)
-            :result   result#
-            :ns       (quote ~(symbol (if tag
-                                        (str/join " " [tag *ns*])
-                                        (str *ns*))))
-            :file     ~#?(:clj *file* :cljs nil)
-            :line     ~line
-            :column   ~column
-            :time     (now)
-            :runtime  (runtime)})
-          (if (= flow# :throw) (throw result#) result#))))))
+(defn tap>* [tag level form expr]
+  (let [{:keys [line column]} (meta form)]
+    `(if-not @enabled
+       ~expr
+       (let [[flow# result#] (run (fn [] ~expr))]
+         (clojure.core/tap>
+          {:form     (quote ~expr)
+           :level    (if (= flow# :throw) :fatal ~level)
+           :result   result#
+           :ns       (quote ~(symbol (if tag
+                                       (str/join " " [tag *ns*])
+                                       (str *ns*))))
+           :file     ~#?(:clj *file* :cljs nil)
+           :line     ~line
+           :column   ~column
+           :time     (now)
+           :runtime  (runtime)})
+         (if (= flow# :throw) (throw result#) result#)))))
 
-(defmacro log [expr]
-  (log* :info &form expr))
-
-(defmacro log-with-tag [tag expr]
-  (log* :info &form expr tag))
+(defmacro tap>
+  ([expr]     (tap>* nil :info &form expr))
+  ([tag expr] (tap>* tag :info &form expr)))
