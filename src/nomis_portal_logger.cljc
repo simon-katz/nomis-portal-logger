@@ -44,4 +44,4 @@
 
 (defmacro tap>
   ([expr]     (tap>* nil :info &form expr))
-  ([tag expr] (tap>* tag :info &form expr)))
+  ([expr tag] (tap>* tag :info &form expr)))
