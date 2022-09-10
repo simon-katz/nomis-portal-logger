@@ -22,9 +22,9 @@
 (defn runtime []
   #?(:bb :bb :clj :clj :cljs :cljs))
 
-(defn capture
+(defn log*
   ([level form expr]
-   (capture level form expr nil))
+   (log* level form expr nil))
   ([level form expr tag]
    (let [{:keys [line column]} (meta form)]
      `(if-not @enabled
@@ -45,7 +45,7 @@
           (if (= flow# :throw) (throw result#) result#))))))
 
 (defmacro log [expr]
-  (capture :info &form expr))
+  (log* :info &form expr))
 
 (defmacro log-with-tag [tag expr]
-  (capture :info &form expr tag))
+  (log* :info &form expr tag))
