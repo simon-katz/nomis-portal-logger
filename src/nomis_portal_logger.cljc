@@ -1,6 +1,7 @@
 (ns nomis-portal-logger
+  #?(:cljs (:require-macros [nomis-portal-logger]
+                            [portal.console]))
   (:refer-clojure :exclude [tap>])
-  #?(:cljs (:require-macros portal.console))
   (:require [clojure.string :as str]))
 
 ;;;; Copied from
